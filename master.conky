@@ -51,7 +51,5 @@ conky.config = {
   use_xft = true,
 }
 
--- TODO: remove the "CONKY" from conky.text below
 conky.text = [[\
-CONKY
 ]]
