@@ -1,9 +1,14 @@
 -- Main lua module for master.conky
-package.path = package.path .. ";/home/simba/Source/Conky/Utils/?.lua"
+package.path = string.format( "%s;%s;%s",
+    package.path,
+    "/home/simba/Source/Conky/Utils/?.lua",
+    "/home/simba/Source/Conky/Modules/?.lua"
+)
 print(package.path)
 
 require("cairo")
 local Cairo = require("CairoHelper")
+local Mpd = require("Mpd")
 
 function conky_main()
   -- Exits early there is no window to draw on:
@@ -25,5 +30,5 @@ function conky_main()
     cr = cairo_create(csurface)
   end
 
-  Cairo:DrawDebugLine()
+  Mpd:Draw({cairo = Cairo, x = 500, y = 20, size = 128})
 end
