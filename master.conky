@@ -1,0 +1,57 @@
+conky.config = {
+  alignment = "top_left",
+  gap_x = 32,                  -- 32 px reserved for tint-bar.
+  gap_y = 0,
+  maximum_width = 1366 - 32,
+  minimum_width = 1366 - 32,
+  minimum_height = 768,
+  update_interval = 1,
+
+  lua_load = "~/Source/Conky/master.lua",
+  lua_draw_hook_pre = "main",
+
+  background = false,
+  border_inner_margin = 0,
+  border_outer_margin = 0,
+  border_width = 1,
+  default_color = "839496",
+  default_outline_color = "000000",
+  default_shade_color = "000000",
+  disable_auto_reload = false,
+  double_buffer = true,
+  draw_borders = false,
+  draw_outline = false,
+  draw_shades = true,
+  extra_newline = false,
+  font = "GohuFont:size=8",
+  format_human_readable = true,
+  if_up_strictness = "link",
+
+  -- Not sure whether this cache setting affects images drawn by Lua, most probably it does not.
+  -- either way, 1MiB should be enough, especially given that no images are drawn right now,
+  -- and so far the only images that are planned to be drawn are image covers (~500kB each).
+  imlib_cache_size = 1000000,
+
+  max_text_width = 0,          -- Long lines of text should never be broken with newlines.
+  mpd_host = "127.0.0.1",
+  music_player_interval = 1,
+  override_utf8_locale = true,
+  own_window = true,
+  own_window_class = "Conky",
+  own_window_colour = "000000", -- It's transparent actually, see below.
+  own_window_transparent = true,
+  own_window_hints = "undecorated,below,sticky",
+  own_window_type = "override",
+  pad_percents = 0,
+  stippled_borders = 0,
+  uppercase = false,
+  use_spacer = "none",
+  show_graph_scale = false,
+  show_graph_range = false,
+  use_xft = true,
+}
+
+-- TODO: remove the "CONKY" from conky.text below
+conky.text = [[\
+CONKY
+]]
