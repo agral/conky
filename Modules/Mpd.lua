@@ -137,8 +137,6 @@ function Mpd:DrawCover()
     self.cairo:Paint()
     self.cairo:Restore()
     self.cairo:SurfaceDestroy(image)
-  else
-    print("[Mpd] No cover found.")
   end
 
   self.cairo:SetLineWidth(self.cover.border.width)
