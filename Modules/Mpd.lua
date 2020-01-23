@@ -29,6 +29,23 @@ local Mpd = {
     Playing = "Playing",
     Stopped = "Stopped",
   },
+  progressBar = {
+    border = 1,
+    outer = {
+      x = 145.5,
+      y = 30.5,
+      width = 150,
+      height = 3,
+      color = Solarized.BASE0,
+    },
+    inner = {
+      x = 145,
+      y = 31,
+      height = 2,
+      width = 148,
+      color = Solarized.BASE1,
+    },
+  },
   texts = {
     color = Solarized.BASE0,
     songProgress = {
@@ -72,6 +89,7 @@ function Mpd:Draw(params)
   end
   self:DrawStatus()
   self:DrawCover()
+  self:DrawProgressBar()
   self:DrawTexts()
 end
 
@@ -185,6 +203,37 @@ function Mpd:DrawTexts()
     -- Writes out current song's progress:
     self.cairo:MoveTo(self.x + self.texts.songProgress.x, self.y + self.texts.songProgress.y + self.font.size)
     self.cairo:ShowText(string.format("%s / %s", self.mpdElapsed, self.mpdLength))
+    self.cairo:Stroke()
+  end
+end
+
+function Mpd:DrawProgressBar()
+  self.cairo:SetLineWidth(1)
+  self.cairo:SetColor(self.progressBar.outer.color)
+  self.cairo:MoveTo(
+      self.x + self.progressBar.outer.x + 0.5 * self.progressBar.outer.width,
+      self.y + self.progressBar.outer.y
+  )
+  self.cairo:RelLineTo(0.5 * self.progressBar.outer.width, 0)
+  self.cairo:RelLineTo(0, self.progressBar.outer.height)
+  self.cairo:RelLineTo(-self.progressBar.outer.width, 0)
+  self.cairo:RelLineTo(0, -self.progressBar.outer.height)
+  self.cairo:RelLineTo(0.5 * self.progressBar.outer.width, 0)
+  self.cairo:Stroke()
+
+  if self.mpdStatus == self.MpdStatus.Playing or self.mpdStatus == self.MpdStatus.Paused then
+    local tElapsed = Utility:DurationToSeconds(self.mpdElapsed)
+    local tLength = Utility:DurationToSeconds(self.mpdLength)
+    local perc = math.min(1.0, math.max(0.0, tElapsed / tLength))
+
+    self.cairo:SetColor(self.progressBar.inner.color)
+    self.cairo:MoveTo(self.x + self.progressBar.inner.x, self.y + self.progressBar.inner.y)
+    self.cairo:RelLineTo(perc * self.progressBar.inner.width, 0)
+    self.cairo:RelLineTo(0, self.progressBar.inner.height)
+    self.cairo:RelLineTo(-perc * self.progressBar.inner.width, 0)
+    self.cairo:RelLineTo(0, -self.progressBar.inner.height)
+    self.cairo:ClosePath()
+    self.cairo:Fill()
     self.cairo:Stroke()
   end
 end
