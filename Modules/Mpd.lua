@@ -52,6 +52,11 @@ local Mpd = {
       x = 190,
       y = 12,
     },
+    songArtist = {
+      color = Solarized.BASE0,
+      x = 145,
+      y = 50,
+    },
     songTitle = {
       color = Solarized.BASE1,
       x = 145,
@@ -213,6 +218,12 @@ function Mpd:DrawTexts()
       self.cairo:SetColor(self.texts.songTitle.color)
       self.cairo:MoveTo(self.x + self.texts.songTitle.x, self.y + self.texts.songTitle.y + self.font.size)
       self.cairo:ShowText(self.mpdTitle)
+      self.cairo:Stroke()
+    end
+    if self.mpdArtist then
+      self.cairo:SetColor(self.texts.songArtist.color)
+      self.cairo:MoveTo(self.x + self.texts.songArtist.x, self.y + self.texts.songArtist.y + self.font.size)
+      self.cairo:ShowText(self.mpdArtist)
       self.cairo:Stroke()
     end
   end
