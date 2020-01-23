@@ -52,6 +52,11 @@ local Mpd = {
       x = 190,
       y = 12,
     },
+    songTitle = {
+      color = Solarized.BASE1,
+      x = 145,
+      y = 38,
+    },
     status = {
       x = 190,
       y = 0,
@@ -204,6 +209,14 @@ function Mpd:DrawTexts()
     self.cairo:MoveTo(self.x + self.texts.songProgress.x, self.y + self.texts.songProgress.y + self.font.size)
     self.cairo:ShowText(string.format("%s / %s", self.mpdElapsed, self.mpdLength))
     self.cairo:Stroke()
+
+    -- Writes out current song's name, artist and album (if available):
+    if self.mpdTitle then
+      self.cairo:SetColor(self.texts.songTitle.color)
+      self.cairo:MoveTo(self.x + self.texts.songTitle.x, self.y + self.texts.songTitle.y + self.font.size)
+      self.cairo:ShowText(self.mpdTitle)
+      self.cairo:Stroke()
+    end
   end
 end
 
