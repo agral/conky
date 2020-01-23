@@ -15,7 +15,6 @@ local Mpd = {
   font = {
     name = "GohuFont",
     size = 11,
-    charWidth = 6,
   },
   Glyph = {
     color = Solarized.BASE00,
@@ -32,10 +31,14 @@ local Mpd = {
   },
   texts = {
     color = Solarized.BASE0,
+    songProgress = {
+      x = 190,
+      y = 12,
+    },
     status = {
       x = 190,
       y = 0,
-    }
+    },
   },
 }
 setmetatable(Mpd, {__index = Mpd,})
@@ -67,10 +70,9 @@ function Mpd:Draw(params)
     self.mpdElapsed = conky_parse("${mpd_elapsed}")
     self.mpdLength = conky_parse("${mpd_length}")
   end
-  self.cairo:SelectFontFace(self.font.name)
-  self.cairo:SetFontSize(self.font.size)
   self:DrawStatus()
   self:DrawCover()
+  self:DrawTexts()
 end
 
 function Mpd:DrawCover()
@@ -167,12 +169,24 @@ function Mpd:DrawStatus()
   end
   self.cairo.Fill()
   self.cairo.Stroke()
+end
 
+function Mpd:DrawTexts()
+  self.cairo:SelectFontFace(self.font.name)
+  self.cairo:SetFontSize(self.font.size)
   self.cairo:SetColor(self.texts.color)
+
   -- Writes out a status string in form of "MPD: STATUS" (e.g. "MPD: Playing"):
   self.cairo:MoveTo(self.x + self.texts.status.x, self.y + self.texts.status.y + self.font.size)
   self.cairo:ShowText(string.format("MPD: %s", self.mpdStatus))
   self.cairo:Stroke()
+
+  if self.mpdStatus == self.MpdStatus.Playing or self.mpdStatus == self.MpdStatus.Paused then
+    -- Writes out current song's progress:
+    self.cairo:MoveTo(self.x + self.texts.songProgress.x, self.y + self.texts.songProgress.y + self.font.size)
+    self.cairo:ShowText(string.format("%s / %s", self.mpdElapsed, self.mpdLength))
+    self.cairo:Stroke()
+  end
 end
 
 return Mpd
