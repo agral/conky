@@ -34,7 +34,7 @@ local Mpd = {
     outer = {
       x = 145.5,
       y = 30.5,
-      width = 150,
+      width = 164,
       height = 3,
       color = Solarized.BASE0,
     },
@@ -42,7 +42,7 @@ local Mpd = {
       x = 145,
       y = 31,
       height = 2,
-      width = 148,
+      width = 152,
       color = Solarized.BASE1,
     },
   },
@@ -61,6 +61,11 @@ local Mpd = {
       color = Solarized.BASE0,
       x = 145,
       y = 50,
+    },
+    songBitrate = {
+      color = Solarized.BASE0,
+      x = 270,
+      y = 0
     },
     songTitle = {
       color = Solarized.BASE1,
@@ -213,9 +218,14 @@ function Mpd:DrawTexts()
   self.cairo:Stroke()
 
   if self.mpdStatus == self.MpdStatus.Playing or self.mpdStatus == self.MpdStatus.Paused then
-    -- Writes out current song's progress:
+    -- Writes out current song's progress and bitrate:
     self.cairo:MoveTo(self.x + self.texts.songProgress.x, self.y + self.texts.songProgress.y + self.font.size)
     self.cairo:ShowText(string.format("%s / %s", self.mpdElapsed, self.mpdLength))
+    self.cairo:Stroke()
+
+    self.cairo:SetColor(self.texts.songBitrate.color)
+    self.cairo:MoveTo(self.x + self.texts.songBitrate.x, self.y + self.texts.songBitrate.y + self.font.size)
+    self.cairo:ShowText(string.format("[@%sk]", self.mpdBitrate))
     self.cairo:Stroke()
 
     -- Writes out current song's name, artist and album (if available):
