@@ -117,11 +117,8 @@ function Mpd:DrawCover()
   local borderColor, pathCover = Solarized.BASE0, nil
 
   if self.mpdStatus == self.MpdStatus.Offline then
-    borderColor = Solarized.RED
-    pathCover = nil -- TODO: add generic "killed" and "stopped" images.
-  elseif self.mpdStatus == self.MpdStatus.Stopped then
-    borderColor = Solarized.BASE0
-    pathCover = nil
+    borderColor = Solarized.BASE03
+    pathCover = nil -- TODO: add generic "killed/unreachable" image.
   else
     local relativeFilePath = conky_parse("${mpd_file}")
     local absoluteFilePath = string.format("%s/%s", dirMusic, relativeFilePath)
@@ -143,6 +140,8 @@ function Mpd:DrawCover()
   end
 
   if pathCover then
+    -- Override the border color for stopped mpd to base gray color:
+    if self.mpdStatus == self.MpdStatus.Stopped then borderColor = Solarized.BASE0 end
     local image = self.cairo:ImageSurfaceCreateFromPng(pathCover)
     self.cairo:Save()
     local iw, ih = self.cairo:ImageSurfaceGetWidth(image), self.cairo:ImageSurfaceGetHeight(image)
