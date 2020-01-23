@@ -22,6 +22,10 @@ setmetatable(CairoHelper, {
   __index = CairoHelper,
 } )
 
+function CairoHelper:ClosePath()
+  cairo_close_path(cr)
+end
+
 function CairoHelper:Fill()
   cairo_fill(cr)
 end
@@ -55,6 +59,10 @@ end
 
 function CairoHelper:Paint()
   cairo_paint(cr)
+end
+
+function CairoHelper:RelLineTo(dx, dy)
+  cairo_rel_line_to(cr, dx, dy)
 end
 
 function CairoHelper:Restore()
