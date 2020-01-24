@@ -22,6 +22,10 @@ setmetatable(CairoHelper, {
   __index = CairoHelper,
 } )
 
+function CairoHelper:Arc(x, y, radius, startAngle, endAngle)
+  cairo_arc(cr, x, y, radius, startAngle, endAngle)
+end
+
 function CairoHelper:ClosePath()
   cairo_close_path(cr)
 end
