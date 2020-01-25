@@ -60,6 +60,37 @@ Clock.Analog.Hands = {
     width = 3,
   },
 }
+Clock.Digital = {
+  hours = {
+    color = {
+      foreground = Solarized.BASE2:WithAlpha(0.9),
+      background = Solarized.BASE2:WithAlpha(0.05),
+    },
+    font = {
+      name = "Segment7",
+      size = 28,
+    },
+    offset = {
+      x = -36,
+      y = 10,
+    },
+  },
+  minutes = {
+    color = {
+      foreground = Solarized.BASE2:WithAlpha(0.7),
+      background = Solarized.BASE2:WithAlpha(0.05),
+    },
+    font = {
+      name = "Segment7",
+      size = 28,
+    },
+    offset = {
+      x = 3,
+      y = 10,
+    },
+  },
+}
+
 setmetatable(Clock, {__index = Clock,})
 
 function Clock:Draw(params, settingsOverride)
@@ -69,6 +100,7 @@ function Clock:Draw(params, settingsOverride)
 
   self:GetDateTime()
   self:DrawAnalogClock()
+  self:DrawDigitalClock(self.Digital)
 end
 
 function Clock:DrawAnalogClock()
@@ -119,6 +151,21 @@ function Clock:DrawAnalogClock()
       self.cairo:Arc(self.x, self.y, hand.bar.radius, startAngle, endAngle)
       self.cairo:Stroke()
     end
+  end
+end
+
+function Clock:DrawDigitalClock(config)
+  for name, part in pairs(config) do
+    self.cairo:SelectFontFace(part.font.name, part.font.slant, part.font.weight)
+    self.cairo:SetFontSize(part.font.size)
+    self.cairo:SetColor(part.color.background)
+    self.cairo:MoveTo(self.x + part.offset.x, self.y + part.offset.y)
+    self.cairo:ShowText("88")
+    self.cairo:Stroke()
+    self.cairo:SetColor(part.color.foreground)
+    self.cairo:MoveTo(self.x + part.offset.x, self.y + part.offset.y)
+    self.cairo:ShowText(string.format("%02d", self.Time[name]))
+    self.cairo:Stroke()
   end
 end
 
