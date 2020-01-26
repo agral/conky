@@ -125,6 +125,11 @@ Clock.Worktime = {
     target = dirWorktime .. "target",
   },
 }
+Clock.Worktime.Bar.marks.outerRadius = Clock.Worktime.Bar.radius + 0.5 * Clock.Worktime.Bar.width
+Clock.Worktime.Bar.marks.major.innerRadius =
+    Clock.Worktime.Bar.marks.outerRadius - Clock.Worktime.Bar.marks.major.length
+Clock.Worktime.Bar.marks.minor.innerRadius =
+    Clock.Worktime.Bar.marks.outerRadius - Clock.Worktime.Bar.marks.minor.length
 
 setmetatable(Clock, {__index = Clock,})
 
@@ -267,6 +272,37 @@ function Clock:DrawWorktime()
         self.x, self.y, self.Worktime.Bar.radius,
         self.Worktime.Bar.angle.left, overtime.angle
     )
+    self.cairo:Stroke()
+  end
+
+  -- Draws the bar's hour and minute marks:
+  local currentAngle = self.Worktime.Bar.angle.left + 0.5 * math.pi
+  local deltaAngle = self.Worktime.Bar.angle.width / 48
+  local x, y
+  for i = 0, 7 do
+    if i > 0 then
+      self.cairo:SetColor(self.Worktime.Bar.marks.major.color)
+      self.cairo:SetLineWidth(self.Worktime.Bar.marks.major.width)
+      x = self.x + self.Worktime.Bar.marks.outerRadius * math.sin(currentAngle)
+      y = self.y - self.Worktime.Bar.marks.outerRadius * math.cos(currentAngle)
+      self.cairo:MoveTo(x, y)
+      x = self.x + self.Worktime.Bar.marks.major.innerRadius * math.sin(currentAngle)
+      y = self.y - self.Worktime.Bar.marks.major.innerRadius * math.cos(currentAngle)
+      self.cairo:LineTo(x, y)
+      self.cairo:Stroke()
+    end
+    currentAngle = currentAngle + deltaAngle
+    self.cairo:SetColor(self.Worktime.Bar.marks.minor.color)
+    self.cairo:SetLineWidth(self.Worktime.Bar.marks.minor.width)
+    for _ = 1, 5 do
+      x = self.x + self.Worktime.Bar.marks.outerRadius * math.sin(currentAngle)
+      y = self.y - self.Worktime.Bar.marks.outerRadius * math.cos(currentAngle)
+      self.cairo:MoveTo(x, y)
+      x = self.x + self.Worktime.Bar.marks.minor.innerRadius * math.sin(currentAngle)
+      y = self.y - self.Worktime.Bar.marks.minor.innerRadius * math.cos(currentAngle)
+      self.cairo:LineTo(x, y)
+      currentAngle = currentAngle + deltaAngle
+    end
     self.cairo:Stroke()
   end
 end
