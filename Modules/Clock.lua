@@ -102,7 +102,7 @@ Clock.Worktime = {
     cap = CAIRO_LINE_CAP_BUTT,
     color = {
       background = Solarized.BASE01:WithAlpha(0.25),
-      active = Solarized.ORANGE:WithAlpha(0.7),
+      worktime = Solarized.ORANGE:WithAlpha(0.7),
       overtime = Solarized.BASE3:WithAlpha(0.95),
     },
     marks = {
@@ -234,7 +234,41 @@ function Clock:DrawWorktime()
     return
   end
 
-  local worktime = {}
+  local worktime, overtime = {}, {}
+  worktime.start = tonumber(f:read())
+  f:close()
+  local f = io.open(self.Worktime.Files.target)
+  if not f then
+    return
+  end
+  worktime.target = tonumber(f:read())
+  f:close()
+
+  -- Calculates how much worktime and overtime is already done:
+  worktime.seconds = math.max(math.min(self.Time.InSeconds.hours - worktime.start, 28800))
+  overtime.seconds = math.max(math.min(self.Time.InSeconds.hours - worktime.target, 28800))
+  worktime.percentDone = math.max(math.min(worktime.seconds / (worktime.target - worktime.start), 1), 0)
+  overtime.percentDone = math.max(math.min(overtime.seconds / (worktime.target - worktime.start), 1), 0)
+
+  -- Draws the worktime and overtime bars, if any time is registered on them:
+  if worktime.percentDone > 0 then
+    worktime.angle = self.Worktime.Bar.angle.left + self.Worktime.Bar.angle.width * worktime.percentDone
+    self.cairo:SetColor(self.Worktime.Bar.color.worktime)
+    self.cairo:Arc(
+        self.x, self.y, self.Worktime.Bar.radius,
+        self.Worktime.Bar.angle.left, worktime.angle
+    )
+    self.cairo:Stroke()
+  end
+  if overtime.percentDone > 0 then
+    overtime.angle = self.Worktime.Bar.angle.left + self.Worktime.Bar.angle.width * overtime.percentDone
+    self.cairo:SetColor(self.Worktime.Bar.color.overtime)
+    self.cairo:Arc(
+        self.x, self.y, self.Worktime.Bar.radius,
+        self.Worktime.Bar.angle.left, overtime.angle
+    )
+    self.cairo:Stroke()
+  end
 end
 
 return Clock
