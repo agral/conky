@@ -1,6 +1,8 @@
 local Color = require("Color")
 local Solarized = require("Solarized")
 
+local dirWorktime = "/tmp/Clock/Worktime/"
+
 local Clock = {
   Analog = {
     border = {
@@ -90,6 +92,39 @@ Clock.Digital = {
     },
   },
 }
+Clock.Worktime = {
+  Bar = {
+    angle = {
+      left = 0.75 * math.pi,    -- == 135 degrees
+      right = 2.25 * math.pi,   -- == 405 degrees
+      width = 1.5 * math.pi,
+    },
+    cap = CAIRO_LINE_CAP_BUTT,
+    color = {
+      background = Solarized.BASE01:WithAlpha(0.25),
+      active = Solarized.ORANGE:WithAlpha(0.7),
+      overtime = Solarized.BASE3:WithAlpha(0.95),
+    },
+    marks = {
+      major = {
+        color = Color:FromHex("161616"),
+        length = 10,
+        width = 1,
+      },
+      minor = {
+        color = Color:FromHex("090909"),
+        length = 7,
+        width = 0.7,
+      },
+    },
+    radius = Clock.Analog.radius + 40,
+    width = 15,
+  },
+  Files = {
+    start = dirWorktime .. "start",
+    target = dirWorktime .. "target",
+  },
+}
 
 setmetatable(Clock, {__index = Clock,})
 
@@ -101,6 +136,7 @@ function Clock:Draw(params, settingsOverride)
   self:GetDateTime()
   self:DrawAnalogClock()
   self:DrawDigitalClock(self.Digital)
+  self:DrawWorktime()
 end
 
 function Clock:DrawAnalogClock()
@@ -180,6 +216,25 @@ function Clock:GetDateTime()
     },
   }
   self.Time.InSeconds.hours = self.Time.InSeconds.minutes + 3600 * self.Time.hours
+end
+
+function Clock:DrawWorktime()
+  -- Draws the background for the worktime/overtime bar:
+  self.cairo:SetColor(self.Worktime.Bar.color.background)
+  self.cairo:SetLineCap(self.Worktime.Bar.cap)
+  self.cairo:SetLineWidth(self.Worktime.Bar.width)
+  self.cairo:Arc(
+      self.x, self.y, self.Worktime.Bar.radius,
+      self.Worktime.Bar.angle.left, self.Worktime.Bar.angle.right
+  )
+  self.cairo:Stroke()
+
+  local f = io.open(self.Worktime.Files.start)
+  if not f then
+    return
+  end
+
+  local worktime = {}
 end
 
 return Clock
