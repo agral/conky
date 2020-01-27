@@ -109,7 +109,7 @@ Clock.Worktime = {
       major = {
         color = Color:FromHex("161616"),
         length = 10,
-        width = 1,
+        width = 2.0,
       },
       minor = {
         color = Color:FromHex("090909"),
