@@ -32,6 +32,5 @@ function conky_main()
   end
 
   Mpd:Draw({cairo = Cairo, x = 500, y = 20, size = 128})
-  --Clock:Draw({cairo = Cairo, x = 150, y = 140, radius = 80})
-  Clock:Draw({cairo = Cairo, x = 170, y = 440})
+  Clock:Draw({cairo = Cairo, x = 170, y = 150})
 end
