@@ -216,7 +216,10 @@ function Mpd:DrawTexts()
   self.cairo:ShowText(string.format("MPD: %s", self.mpdStatus))
   self.cairo:Stroke()
 
-  if self.mpdStatus == self.MpdStatus.Playing or self.mpdStatus == self.MpdStatus.Paused then
+  if self.mpdStatus == self.MpdStatus.Playing
+      or self.mpdStatus == self.MpdStatus.Paused
+      or self.mpdStatus == self.MpdStatus.Stopped
+  then
     -- Writes out current song's progress and bitrate:
     self.cairo:MoveTo(self.x + self.texts.songProgress.x, self.y + self.texts.songProgress.y + self.font.size)
     self.cairo:ShowText(string.format("%s / %s", self.mpdElapsed, self.mpdLength))
