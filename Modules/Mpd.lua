@@ -42,7 +42,7 @@ local Mpd = {
       x = 145,
       y = 31,
       height = 2,
-      width = 152,
+      width = 164,
       color = Solarized.BASE1,
     },
   },
