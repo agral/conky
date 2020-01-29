@@ -92,7 +92,7 @@ function Mpd:Draw(params)
     self.mpdStatus = self.MpdStatus.Offline
   end
 
-  if self.mpdStatus == self.MpdStatus.Offline or self.mpdStatus == self.MpdStatus.Stopped then
+  if self.mpdStatus == self.MpdStatus.Offline then
     self.mpdTitle = nil
     self.mpdArtist = nil
     self.mpdAlbum = nil
