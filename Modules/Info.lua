@@ -1,8 +1,11 @@
 local Solarized = require("Solarized")
 
 local Info = {
-  iterations = 0
+  updateCounter = 0,
+  UNKNOWN_VALUE = -1
 }
+Info.storageUsed = Info.UNKNOWN_VALUE
+
 setmetatable(Info, {
   __index = Info
 })
@@ -53,11 +56,25 @@ function Info:Draw(params)
     },
   })
 
+  local stg = self:GetStorageUsage()
+  local stgNormalized = math.max(0, stg) / 100
+  self.widgets:DrawArcIndicator({
+    color = (stg == self.UNKNOWN_VALUE and Solarized.BASE00 or nil),
+    pos = {x = self.x + 250, y = self.y + 25},
+    radius = 20,
+    width = 8,
+    value = {
+      normalized = stgNormalized,
+      text = (stg == self.UNKNOWN_VALUE and "XX" or stg),
+      label = "STG",
+    },
+  })
+
   local conky_battery_percent = conky_parse("${battery_percent}")
   local batNormalized = tonumber(conky_battery_percent) / 100
   self.widgets:DrawArcIndicator({
     color = Solarized.VIOLET,
-    pos = {x = self.x + 250, y = self.y + 25},
+    pos = {x = self.x + 325, y = self.y + 25},
     radius = 20,
     width = 8,
     value = {
@@ -72,7 +89,7 @@ function Info:Draw(params)
   local desktopNormalized = conky_desktop / conky_desktop_count
   self.widgets:DrawArcIndicator({
     color = Solarized.MAGENTA,
-    pos = {x = self.x + 325, y = self.y + 25},
+    pos = {x = self.x + 400, y = self.y + 25},
     radius = 20,
     width = 8,
     value = {
@@ -83,8 +100,19 @@ function Info:Draw(params)
     hidePercentSign = true,
   })
 
-  self.iterations = self.iterations + 1
-  print("Drawn, iter=" .. self.iterations)
+  self.updateCounter = self.updateCounter + 1
+end
+
+function Info:GetStorageUsage()
+  if self.updateCounter % 120 == 0 or self.storageUsed < 0 then
+    local f = io.popen("df -h --output=ipcent /media/STORAGE | tail -n1 | sed 's/[^0-9]*//g'")
+    local output = f:read("*a")
+    f:close()
+
+    self.storageUsed = tonumber(output) or self.UNKNOWN_VALUE
+  end
+
+  return self.storageUsed
 end
 
 return Info
