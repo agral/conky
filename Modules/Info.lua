@@ -49,7 +49,7 @@ function Info:Draw(params)
     value = {
       normalized = hddNormalized,
       text = conky_fs_used_perc,
-      label = "SDD",
+      label = "SSD",
     },
   })
 
