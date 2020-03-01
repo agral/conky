@@ -39,8 +39,8 @@ function conky_main()
     cr = cairo_create(csurface)
   end
 
-  Mpd:Draw({cairo = Cairo, x = 500, y = 20, size = 128})
-  Clock:Draw({cairo = Cairo, x = 170, y = 150})
+  Mpd:Draw({cairo = Cairo, x = 550, y = 20, size = 128})
+  Clock:Draw({cairo = Cairo, x = 200, y = 150})
   Info:Draw({cairo = Cairo, widgets = Widgets, x = 25, y = 310})
   ReferenceRenderer:Draw({
     cairo = Cairo,
