@@ -4,6 +4,7 @@ local Info = {
   updateCounter = 0,
   UNKNOWN_VALUE = -1
 }
+Info.ssdUsed = Info.UNKNOWN_VALUE
 Info.storageUsed = Info.UNKNOWN_VALUE
 
 setmetatable(Info, {
@@ -43,15 +44,16 @@ function Info:Draw(params)
     },
   })
 
-  local conky_fs_used_perc = conky_parse("${fs_used_perc}")
-  local hddNormalized = tonumber(conky_fs_used_perc) / 100
+  local ssd = self:GetSsdUsage()
+  local ssdNormalized = math.max(0, ssd) / 100
   self.widgets:DrawArcIndicator({
+    color = (ssd == self.UNKNOWN_VALUE and Solarized.BASE00 or nil),
     pos = {x = self.x + 175, y = self.y + 25},
     radius = 20,
     width = 8,
     value = {
-      normalized = hddNormalized,
-      text = conky_fs_used_perc,
+      normalized = ssdNormalized,
+      text = (ssd == self.UNKNOWN_VALUE and "XX" or ssd),
       label = "SSD",
     },
   })
@@ -103,12 +105,22 @@ function Info:Draw(params)
   self.updateCounter = self.updateCounter + 1
 end
 
-function Info:GetStorageUsage()
-  if self.updateCounter % 120 == 0 or self.storageUsed < 0 then
-    local f = io.popen("df -h --output=ipcent /media/STORAGE | tail -n1 | sed 's/[^0-9]*//g'")
+function Info:GetSsdUsage()
+  if self.updateCounter % 120 == 0 or self.ssdUsed < 0 then
+    local f = io.popen("df -h --output=pcent / | tail -n1 | sed 's/[^0-9]*//g'")
     local output = f:read("*a")
     f:close()
+    self.ssdUsed = tonumber(output) or self.UNKNOWN_VALUE
+  end
 
+  return self.ssdUsed
+end
+
+function Info:GetStorageUsage()
+  if self.updateCounter % 120 == 0 or self.storageUsed < 0 then
+    local f = io.popen("df -h --output=pcent /media/STORAGE | tail -n1 | sed 's/[^0-9]*//g'")
+    local output = f:read("*a")
+    f:close()
     self.storageUsed = tonumber(output) or self.UNKNOWN_VALUE
   end
 
