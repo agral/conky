@@ -144,7 +144,7 @@ Clock.Worktime.Bar.marks.minor.innerRadius =
 
 setmetatable(Clock, {__index = Clock,})
 
-function Clock:Draw(params, settingsOverride)
+function Clock:Draw(params)
   assert(params and params.cairo and params.x and params.y)
   self.cairo, self.x, self.y = params.cairo, params.x, params.y
   -- TODO: add merge-tables utility, allow overriding of default settings.
@@ -162,7 +162,7 @@ function Clock:DrawAnalogClock()
   self.cairo:Arc(self.x, self.y, self.Analog.radius, 0, 2 * math.pi)
   self.cairo:Stroke()
 
-  local mark, markNumber, x, y, angle
+  local mark, x, y, angle
   for markNumber = 0, 11 do
     mark = (markNumber % 3 == 0) and self.Analog.mark.major or self.Analog.mark.minor
     self.cairo:SetColor(mark.color)
@@ -253,7 +253,7 @@ function Clock:DrawWorktime()
   local worktime, overtime = {}, {}
   worktime.start = tonumber(f:read())
   f:close()
-  local f = io.open(self.Worktime.Files.target)
+  f = io.open(self.Worktime.Files.target)
   if not f then
     return
   end
@@ -263,6 +263,7 @@ function Clock:DrawWorktime()
   -- Calculates how much worktime and overtime is already done:
   worktime.seconds = math.max(math.min(self.Time.InSeconds.hours - worktime.start, 28800))
   overtime.seconds = math.max(math.min(self.Time.InSeconds.hours - worktime.target, 28800))
+
   worktime.percentDone = math.max(math.min(worktime.seconds / (worktime.target - worktime.start), 1), 0)
   overtime.percentDone = math.max(math.min(overtime.seconds / (worktime.target - worktime.start), 1), 0)
 
