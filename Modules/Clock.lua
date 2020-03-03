@@ -124,6 +124,17 @@ Clock.Worktime = {
     start = dirWorktime .. "start",
     target = dirWorktime .. "target",
   },
+  Summary = {
+    offset = {
+      x = -225,
+      y = 30,
+      valueX = 45,
+    },
+    Title = {
+      label = "Worktime",
+      width = 90,
+    },
+  },
 }
 Clock.Worktime.Bar.marks.outerRadius = Clock.Worktime.Bar.radius + 0.5 * Clock.Worktime.Bar.width
 Clock.Worktime.Bar.marks.major.innerRadius =
@@ -264,7 +275,59 @@ function Clock:DrawWorktime()
         self.Worktime.Bar.angle.left, worktime.angle
     )
     self.cairo:Stroke()
+
+    -- Prepares to draw the worktime summary section:
+    local Summary = self.Worktime.Summary
+    local summaryX, summaryY = self.x + Summary.offset.x, self.y + Summary.offset.y
+    local summaryCurrentY = summaryY
+    self.cairo:SelectFontFace("GohuFont")
+    self.cairo:SetFontSize(11)
+    self.cairo:SetLineWidth(1)
+    self.cairo:SetColor(Solarized.BASE00)
+
+    -- Draws the title bar of worktime summary widget
+    local titleW = self.cairo:GetTextSize(Summary.Title.label)
+    self.cairo:MoveTo(summaryX + 0.5 * (Summary.Title.width - titleW), summaryCurrentY - 2)
+    self.cairo:ShowText(Summary.Title.label)
+    self.cairo:MoveTo(summaryX + 0.5, summaryCurrentY + 0.5)
+    self.cairo:RelLineTo(Summary.Title.width, 0)
+    self.cairo:Stroke()
+
+    -- Renders the work start time:
+    summaryCurrentY = summaryCurrentY + 15
+    self.cairo:MoveTo(summaryX, summaryCurrentY)
+    self.cairo:ShowText("Start:")
+    self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
+    self.cairo:ShowText("88:88")
+    self.cairo:Stroke()
+
+    -- Renders the elapsed worktime:
+    summaryCurrentY = summaryCurrentY + 11
+    self.cairo:MoveTo(summaryX, summaryCurrentY)
+    self.cairo:ShowText("Done:")
+    self.cairo:Stroke()
+    self.cairo:SetColor(Solarized.ORANGE)
+    self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
+    self.cairo:ShowText("88:88")
+    self.cairo:Stroke()
+
+    -- Renders the currently remaining worktime / currently done overtime (whichever applies):
+    summaryCurrentY = summaryCurrentY + 11
+    self.cairo:SetColor(Solarized.BASE00)
+    self.cairo:MoveTo(summaryX, summaryCurrentY)
+    if overtime.percentDone > 0 then
+      self.cairo:ShowText("Ovrt:")
+      self.cairo:SetColor(Solarized.BASE3)
+      self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
+      self.cairo:ShowText("88:88")
+    else
+      self.cairo:ShowText("Left:")
+      self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
+      self.cairo:ShowText("88:88")
+    end
+    self.cairo:Stroke()
   end
+
   if overtime.percentDone > 0 then
     overtime.angle = self.Worktime.Bar.angle.left + self.Worktime.Bar.angle.width * overtime.percentDone
     self.cairo:SetColor(self.Worktime.Bar.color.overtime)
