@@ -234,6 +234,36 @@ function Clock:GetDateTime()
   self.Time.InSeconds.hours = self.Time.InSeconds.minutes + 3600 * self.Time.hours
 end
 
+function Clock:ReadAndCalculateWorktimeData()
+  self.Time.Worktime, self.Time.Overtime = {}, {}
+  local f = io.open(self.Worktime.Files.start)
+  if not f then
+    return false
+  end
+  self.Time.Worktime.start = tonumber(f:read())
+  f:close()
+
+  f = io.open(self.Worktime.Files.target)
+  if not f then
+    return false
+  end
+  self.Time.Worktime.target = tonumber(f:read())
+  f:close()
+
+  self.Time.Worktime.duration = self.Time.Worktime.target - self.Time.Worktime.start
+
+  -- Calculates how much worktime and overtime is already done:
+  self.Time.Worktime.seconds = math.max(math.min(
+      self.Time.InSeconds.hours - self.Time.Worktime.start, self.Time.Worktime.duration), 0)
+  self.Time.Overtime.seconds = math.max(math.min(
+      self.Time.InSeconds.hours - self.Time.Worktime.target, self.Time.Worktime.duration), 0)
+  self.Time.Worktime.percentDone = math.max(math.min(
+      self.Time.Worktime.seconds / self.Time.Worktime.duration, 1), 0)
+  self.Time.Overtime.percentDone = math.max(math.min(
+      self.Time.Overtime.seconds / self.Time.Worktime.duration, 1), 0)
+  return true
+end
+
 function Clock:DrawWorktime()
   -- Draws the background for the worktime/overtime bar:
   self.cairo:SetColor(self.Worktime.Bar.color.background)
@@ -245,35 +275,18 @@ function Clock:DrawWorktime()
   )
   self.cairo:Stroke()
 
-  local f = io.open(self.Worktime.Files.start)
-  if not f then
+  if not self:ReadAndCalculateWorktimeData() then
     return
   end
-
-  local worktime, overtime = {}, {}
-  worktime.start = tonumber(f:read())
-  f:close()
-  f = io.open(self.Worktime.Files.target)
-  if not f then
-    return
-  end
-  worktime.target = tonumber(f:read())
-  f:close()
-
-  -- Calculates how much worktime and overtime is already done:
-  worktime.seconds = math.max(math.min(self.Time.InSeconds.hours - worktime.start, 28800))
-  overtime.seconds = math.max(math.min(self.Time.InSeconds.hours - worktime.target, 28800))
-
-  worktime.percentDone = math.max(math.min(worktime.seconds / (worktime.target - worktime.start), 1), 0)
-  overtime.percentDone = math.max(math.min(overtime.seconds / (worktime.target - worktime.start), 1), 0)
 
   -- Draws the worktime and overtime bars, if any time is registered on them:
-  if worktime.percentDone > 0 then
-    worktime.angle = self.Worktime.Bar.angle.left + self.Worktime.Bar.angle.width * worktime.percentDone
+  if self.Time.Worktime.percentDone > 0 then
+    local worktimeAngle = self.Worktime.Bar.angle.left +
+        (self.Worktime.Bar.angle.width * self.Time.Worktime.percentDone)
     self.cairo:SetColor(self.Worktime.Bar.color.worktime)
     self.cairo:Arc(
         self.x, self.y, self.Worktime.Bar.radius,
-        self.Worktime.Bar.angle.left, worktime.angle
+        self.Worktime.Bar.angle.left, worktimeAngle
     )
     self.cairo:Stroke()
 
@@ -316,7 +329,7 @@ function Clock:DrawWorktime()
     summaryCurrentY = summaryCurrentY + 11
     self.cairo:SetColor(Solarized.BASE00)
     self.cairo:MoveTo(summaryX, summaryCurrentY)
-    if overtime.percentDone > 0 then
+    if self.Time.Overtime.percentDone > 0 then
       self.cairo:ShowText("Ovrt:")
       self.cairo:SetColor(Solarized.BASE3)
       self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
@@ -329,12 +342,13 @@ function Clock:DrawWorktime()
     self.cairo:Stroke()
   end
 
-  if overtime.percentDone > 0 then
-    overtime.angle = self.Worktime.Bar.angle.left + self.Worktime.Bar.angle.width * overtime.percentDone
+  if self.Time.Overtime.percentDone > 0 then
+    local overtimeAngle = self.Worktime.Bar.angle.left +
+        (self.Worktime.Bar.angle.width * self.Time.Overtime.percentDone)
     self.cairo:SetColor(self.Worktime.Bar.color.overtime)
     self.cairo:Arc(
         self.x, self.y, self.Worktime.Bar.radius,
-        self.Worktime.Bar.angle.left, overtime.angle
+        self.Worktime.Bar.angle.left, overtimeAngle
     )
     self.cairo:Stroke()
   end
