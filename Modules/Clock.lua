@@ -250,6 +250,8 @@ function Clock:ReadAndCalculateWorktimeData()
   s:close()
   t:close()
 
+  -- Values directly related to worktime start/end are expected to almost never change.
+  -- Checks whether values derived from worktime start/end need update, if so, recalculates them:
   if
     (self.Time.Worktime == nil or self.Time.Worktime.start == nil or self.Time.Worktime.target == nil) or
     (start ~= self.Time.Worktime.start) or (target ~= self.Time.Worktime.target)
@@ -258,6 +260,7 @@ function Clock:ReadAndCalculateWorktimeData()
     self.Time.Worktime, self.Time.Overtime = {}, {}
     self.Time.Worktime.start, self.Time.Worktime.target = start, target
     self.Time.Worktime.duration = self.Time.Worktime.target - self.Time.Worktime.start
+    self.Time.Worktime.startStr = SecondsToHHMM(self.Time.Worktime.start)
   end
 
   -- Calculates how much worktime and overtime is already done:
@@ -321,7 +324,7 @@ function Clock:DrawWorktime()
     self.cairo:MoveTo(summaryX, summaryCurrentY)
     self.cairo:ShowText("Start:")
     self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
-    self.cairo:ShowText("88:88")
+    self.cairo:ShowText(self.Time.Worktime.startStr)
     self.cairo:Stroke()
 
     -- Renders the elapsed worktime:
@@ -331,7 +334,7 @@ function Clock:DrawWorktime()
     self.cairo:Stroke()
     self.cairo:SetColor(Solarized.ORANGE)
     self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
-    self.cairo:ShowText("88:88")
+    self.cairo:ShowText(SecondsToHHMM(self.Time.Worktime.seconds))
     self.cairo:Stroke()
 
     -- Renders the currently remaining worktime / currently done overtime (whichever applies):
@@ -342,11 +345,11 @@ function Clock:DrawWorktime()
       self.cairo:ShowText("Ovrt:")
       self.cairo:SetColor(Solarized.BASE3)
       self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
-      self.cairo:ShowText("88:88")
+      self.cairo:ShowText(SecondsToHHMM(self.Time.Overtime.seconds))
     else
       self.cairo:ShowText("Left:")
       self.cairo:MoveTo(summaryX + Summary.offset.valueX, summaryCurrentY)
-      self.cairo:ShowText("88:88")
+      self.cairo:ShowText(SecondsToHHMM(self.Time.Worktime.target - self.Time.InSeconds.hours))
     end
     self.cairo:Stroke()
   end
