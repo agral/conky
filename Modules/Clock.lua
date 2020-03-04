@@ -97,7 +97,6 @@ Clock.Worktime = {
     angle = {
       left = 0.75 * math.pi,    -- == 135 degrees
       right = 2.25 * math.pi,   -- == 405 degrees
-      width = 1.5 * math.pi,
     },
     cap = CAIRO_LINE_CAP_BUTT,
     color = {
@@ -136,6 +135,7 @@ Clock.Worktime = {
     },
   },
 }
+Clock.Worktime.Bar.angle.width = Clock.Worktime.Bar.angle.right - Clock.Worktime.Bar.angle.left
 Clock.Worktime.Bar.marks.outerRadius = Clock.Worktime.Bar.radius + 0.5 * Clock.Worktime.Bar.width
 Clock.Worktime.Bar.marks.major.innerRadius =
     Clock.Worktime.Bar.marks.outerRadius - Clock.Worktime.Bar.marks.major.length
