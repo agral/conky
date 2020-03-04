@@ -10,7 +10,8 @@ local Clock = {
       width = 2,
     },
     radius = 80,
-  }
+  },
+  Time = {}
 }
 Clock.Analog.mark = {
   radius = Clock.Analog.radius - 5,
@@ -144,6 +145,13 @@ Clock.Worktime.Bar.marks.minor.innerRadius =
 
 setmetatable(Clock, {__index = Clock,})
 
+local function SecondsToHHMM(seconds)
+  local fullHours = math.floor(seconds / 3600)
+  seconds = seconds - (3600 * fullHours)
+  local fullMinutes = math.floor(seconds / 60)
+  return string.format("%02d:%02d", fullHours, fullMinutes)
+end
+
 function Clock:Draw(params)
   assert(params and params.cairo and params.x and params.y)
   self.cairo, self.x, self.y = params.cairo, params.x, params.y
@@ -223,34 +231,34 @@ end
 
 function Clock:GetDateTime()
   local time = os.date("*t")
-  self.Time = {
-    seconds = time.sec,
-    minutes = time.min,
-    hours = time.hour,
-    InSeconds = {
-      minutes = 60 * time.min + time.sec,
-    },
+  self.Time.seconds = time.sec
+  self.Time.minutes = time.min
+  self.Time.hours = time.hour
+  self.Time.InSeconds = {
+    minutes = 60 * time.min + time.sec,
   }
   self.Time.InSeconds.hours = self.Time.InSeconds.minutes + 3600 * self.Time.hours
 end
 
 function Clock:ReadAndCalculateWorktimeData()
-  self.Time.Worktime, self.Time.Overtime = {}, {}
-  local f = io.open(self.Worktime.Files.start)
-  if not f then
+  local s,t = io.open(self.Worktime.Files.start), io.open(self.Worktime.Files.target)
+  if not (s and t) then
+    self.Time.Worktime, self.Time.Overtime = {}, {}
     return false
   end
-  self.Time.Worktime.start = tonumber(f:read())
-  f:close()
+  local start, target = tonumber(s:read()), tonumber(t:read())
+  s:close()
+  t:close()
 
-  f = io.open(self.Worktime.Files.target)
-  if not f then
-    return false
+  if
+    (self.Time.Worktime == nil or self.Time.Worktime.start == nil or self.Time.Worktime.target == nil) or
+    (start ~= self.Time.Worktime.start) or (target ~= self.Time.Worktime.target)
+  then
+    print("[Clock] Time update")
+    self.Time.Worktime, self.Time.Overtime = {}, {}
+    self.Time.Worktime.start, self.Time.Worktime.target = start, target
+    self.Time.Worktime.duration = self.Time.Worktime.target - self.Time.Worktime.start
   end
-  self.Time.Worktime.target = tonumber(f:read())
-  f:close()
-
-  self.Time.Worktime.duration = self.Time.Worktime.target - self.Time.Worktime.start
 
   -- Calculates how much worktime and overtime is already done:
   self.Time.Worktime.seconds = math.max(math.min(
@@ -261,6 +269,7 @@ function Clock:ReadAndCalculateWorktimeData()
       self.Time.Worktime.seconds / self.Time.Worktime.duration, 1), 0)
   self.Time.Overtime.percentDone = math.max(math.min(
       self.Time.Overtime.seconds / self.Time.Worktime.duration, 1), 0)
+
   return true
 end
 
