@@ -357,6 +357,7 @@ function Clock:DrawWorktime()
   if self.Time.Overtime.percentDone > 0 then
     local overtimeAngle = self.Worktime.Bar.angle.left +
         (self.Worktime.Bar.angle.width * self.Time.Overtime.percentDone)
+    self.cairo:SetLineWidth(self.Worktime.Bar.width)
     self.cairo:SetColor(self.Worktime.Bar.color.overtime)
     self.cairo:Arc(
         self.x, self.y, self.Worktime.Bar.radius,
