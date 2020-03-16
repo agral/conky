@@ -21,7 +21,6 @@ function ReferenceRenderer:Draw(params)
     self.cairo:Paint()
     self.cairo:Restore()
     self.cairo:SurfaceDestroy(self.referenceImg)
-    print(string.format("Ref img: %s x %s", self.width, self.height))
   end
 end
 
