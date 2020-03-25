@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# Name:          GetPdfProgress
+# Description:   Gets the current page of the book that is/has been read in Evince reader.
+# Options:       One required parameter: path to PDF file to get stats for.
+# Requirements:  Utils `gio` and `pdfinfo` must exist in $PATH
+# Created on:    25.03.2020
+# Last modified: 25.03.2020
+# Author:        Adam Graliński (adam@gralin.ski)
+# License:       MIT
+
+
+abort() {
+  >&2 echo "Aborting."
+  exit 1
+}
+
+require() {
+  >/dev/null 2>&1 command -v "${1}" || {
+    >&2 echo "Error: \`${1}\` required but it's not installed."
+    abort
+  }
+}
+
+REQUIRED_TOOLS=("gio" "pdfinfo")
+for tool in "${REQUIRED_TOOLS[@]}"; do
+  require "${tool}"
+done
+
+get_pdf_progress() {
+  if [ ! -f "${1}" ]; then
+    >&2 printf "Error: file \"%s\" does not exist.\n" "${1}"
+    abort
+  fi
+
+  page="$( gio info "${1}" | grep "metadata::evince::page" )"
+  if [ -z "${page}" ]; then
+    progress="1"
+  else
+    page_tokens=($page)
+    progress=${page_tokens[1]}
+  fi
+
+  pagestotal="$( pdfinfo "${1}" | grep "Pages:" )"
+  pages_tokens=($pagestotal)
+  pages_count="${pages_tokens[1]}"
+
+  echo "${progress}/${pages_count}"
+}
+
+if [ ${#} -eq 0 ]; then
+  >&2 echo "Error: argument expected."
+  abort
+fi
+
+get_pdf_progress "${1}"
