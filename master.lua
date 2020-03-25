@@ -13,6 +13,7 @@ Widgets:Init({cairo = Cairo})
 local Clock = require("Clock")
 local Mpd = require("Mpd")
 local Info = require("Info")
+local Research = require("Research")
 local ReferenceRenderer = require("ReferenceRenderer")
 
 local extraMarginL = 32 -- Reserved for tint2-bar
@@ -42,6 +43,7 @@ function conky_main()
   Mpd:Draw({cairo = Cairo, x = 600, y = 20, size = 128})
   Clock:Draw({cairo = Cairo, x = 238, y = 150})
   Info:Draw({cairo = Cairo, widgets = Widgets, x = 25, y = 310})
+  Research:Draw({cairo = Cairo, rightX = 1366 - extraMarginL})
   ReferenceRenderer:Draw({
     cairo = Cairo,
     pos = {x = screen.w - extraMarginL - padding, y = screen.h - padding},
