@@ -13,6 +13,7 @@ local Research = {
   clBlack = Color:FromHex("000000"),
   clWhite = Color:FromHex("FFFFFF"),
   clSilver = Color:FromHex("C0C0C0"),
+  clGold = Color:FromHex("D48C24"),
   clWindowBg = Color:FromHex("303030"),
   clWindowTopLine = Color:FromHex("565656"),
   clWindowBreakLineDark = Color:FromHex("0D0C0F"),
@@ -105,7 +106,13 @@ function Research:QueryBookProgress()
     book_data.name = filename
     book_data.current_page = tonumber(progress_tokens[1])
     book_data.pages_count = tonumber(progress_tokens[2])
-    book_data.progress = math.min(math.max(book_data.current_page / book_data.pages_count, 0.0), 1.0)
+    if book_data.current_page <= 1 then
+      book_data.progress = 0
+    elseif book_data.pages_count - book_data.current_page <= 1 then
+      book_data.progress = 1
+    else
+      book_data.progress = math.min(math.max(book_data.current_page / book_data.pages_count, 0.0), 1.0)
+    end
     self.books[counter] = book_data
     counter = counter + 1
   end
@@ -151,7 +158,7 @@ function Research:DrawBookProgress()
 
     -- Draws the actual progress bar:
     local pbFillWidth = book.progress * (self.width - 2 * self.padding)
-    self.cairo:SetColor(self.clProgressBarFg)
+    self.cairo:SetColor(book.progress == 1 and self.clGold or self.clProgressBarFg)
     self.cairo:MoveTo(x + 0.5, y + 0.5)
     self.cairo:RelLineTo(pbFillWidth, 0)
     self.cairo:RelLineTo(0, self.progressBarHeight)
