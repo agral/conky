@@ -5,7 +5,7 @@
 # Options:       One required parameter: path to PDF file to get stats for.
 # Requirements:  Utils `gio` and `pdfinfo` must exist in $PATH
 # Created on:    25.03.2020
-# Last modified: 25.03.2020
+# Last modified: 28.03.2020
 # Author:        Adam Graliński (adam@gralin.ski)
 # License:       MIT
 
@@ -33,6 +33,9 @@ get_pdf_progress() {
     abort
   fi
 
+  # Note: metadata::evince::page uses 0-indexed and 1-indexed pages - depending on an actual PDF file.
+  # Therefore it may report some progress (e.g. 1/654) when the book has not yet been started,
+  # or still one page missing to completion, when it has actually been fully read (e.g. 653/654).
   page="$( gio info "${1}" | grep "metadata::evince::page" )"
   if [ -z "${page}" ]; then
     progress="1"
